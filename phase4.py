@@ -1,7 +1,5 @@
 import requests
-from bs4 import BeautifulSoup
 import os
-import time
 from phase1 import extract_book_data, save_to_csv
 
 def download_cover_image(image_url, title, category):
@@ -41,17 +39,14 @@ def extract_book_data_with_image(url):
     """
     Extraire les données d'un livre et télécharger son image de couverture
     """
-    # Extraire les données du livre avec la fonction de phase1
     book_data = extract_book_data(url)
     
-    # Télécharger l'image de couverture
     image_path = download_cover_image(
         book_data['image_url'], 
         book_data['title'],
         book_data['category']
     )
     
-    # Ajouter le chemin local de l'image aux données du livre
     book_data['local_image_path'] = image_path
     
     return book_data
