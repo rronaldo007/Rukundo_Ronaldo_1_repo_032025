@@ -1,29 +1,20 @@
-import requests
-from bs4 import BeautifulSoup
-import csv
 import os
-import time
 
-from phase1 import extract_book_data, save_to_csv
+from phase3 import extract_all_categories
 
 def main():
-    print("Démarrage du programme de scraping Books to Scrape - Phase 1")
+    print("Démarrage du programme de scraping Books to Scrape - Phase 3")
     
     # Créer le dossier pour les données
     os.makedirs('data', exist_ok=True)
     
-    # URL d'exemple pour un livre
-    book_url = "http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html"
+    # URL de base par défaut
+    base_url = "http://books.toscrape.com/"
     
-    print(f"Extraction des données du livre: {book_url}")
+    # Extraire toutes les catégories et leurs livres
+    extract_all_categories(base_url)
     
-    # Extraire les données du livre
-    book_data = extract_book_data(book_url)
-    
-    # Sauvegarder les données dans un fichier CSV
-    save_to_csv(book_data)
-    
-    print("\nPhase 1 terminée!")
+    print("\nPhase 3 terminée!")
 
 if __name__ == "__main__":
     main()

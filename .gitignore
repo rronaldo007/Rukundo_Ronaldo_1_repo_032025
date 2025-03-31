@@ -1,0 +1,12 @@
+data/
+
+images/
+
+env/
+venv/
+ENV/
+
+.idea/
+.vscode/
+*.swp
+*.swo
