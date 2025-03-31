@@ -1,20 +1,28 @@
 import os
 
-from phase3 import extract_all_categories
+from phase4 import extract_book_data_with_image
 
 def main():
-    print("Démarrage du programme de scraping Books to Scrape - Phase 3")
+    """
+    Fonction principale qui démontre l'utilisation du module
+    """
+    print("Démarrage du programme de scraping Books to Scrape - Phase 4")
     
-    # Créer le dossier pour les données
+    # Créer les répertoires nécessaires
     os.makedirs('data', exist_ok=True)
+    os.makedirs('images', exist_ok=True)
     
-    # URL de base par défaut
-    base_url = "http://books.toscrape.com/"
+    # URL d'exemple pour démontrer le fonctionnement
+    book_url = "https://books.toscrape.com/catalogue/the-requiem-red_995/index.html"
     
-    # Extraire toutes les catégories et leurs livres
-    extract_all_categories(base_url)
+    print(f"Extraction des données et téléchargement de l'image pour: {book_url}")
     
-    print("\nPhase 3 terminée!")
+    # Extraire les données du livre et télécharger son image
+    extract_book_data_with_image(book_url)
+    
+    # Sauvegarder les données dans un fichier CSV
+    
+    print("\nPhase 4 terminée!")
 
 if __name__ == "__main__":
     main()
