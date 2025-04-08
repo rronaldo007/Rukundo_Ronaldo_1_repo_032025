@@ -1,60 +1,105 @@
 import os
 import sys
-from phase1 import extract_book_data, save_to_csv
-from phase2 import extract_category_books
-from phase3 import extract_all_categories
-from phase4 import extract_book_data_with_image
+import time
+from extract_book_from_url import extract_book_data
+from extract_books_by_category import extract_category_books, save_to_csv
+from extract_all_cotegories_and_books import extract_all_categories
+from download_all_cover_image import extract_all_book_images, download_cover_image
 
 def main():
-    """
-    Programme simple pour extraire les données de livres depuis books.toscrape.com
-    """
+
     os.makedirs('data', exist_ok=True)
-    
+    os.makedirs('images', exist_ok=True)
+
+    print(f"Début de l'extraction: {time.strftime('%H:%M:%S', time.localtime())}")
+
     if len(sys.argv) < 2:
-        print("Usage:")
-        print("  python main.py 1 <url_livre>              - Extraire un seul livre")
-        print("    Exemple: python main.py 1 http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html")
-        print("  python main.py 1i <url_livre>             - Extraire un livre avec son image (sans CSV)")
-        print("    Exemple: python main.py 1i http://books.toscrape.com/catalogue/tipping-the-velvet_999/index.html")
-        print("  python main.py 2 <url_categorie>          - Extraire tous les livres d'une catégorie")
-        print("    Exemple: python main.py 2 http://books.toscrape.com/catalogue/category/books/travel_2/index.html")
-        print("  python main.py 3                          - Extraire toutes les catégories")
-        print("    Exemple: python main.py 3")
-        return
-    
-    command = sys.argv[1]
-    
+        choix = demander_choix()
+        if not choix:
+            return
+    else:
+        choix = sys.argv[1:]
+
     try:
-        if command == "1" and len(sys.argv) >= 3:
-            url = sys.argv[2]
-            print(f"Extraction du livre: {url}")
-            book_data = extract_book_data(url)
-            save_to_csv(book_data)
-            
-        elif command == "1i" and len(sys.argv) >= 3:
-            url = sys.argv[2]
-            print(f"Extraction du livre avec image: {url}")
-            book_data = extract_book_data_with_image(url)
-            print("Image téléchargée avec succès!")
-            
-        elif command == "2" and len(sys.argv) >= 3:
-            url = sys.argv[2]
-            print(f"Extraction de la catégorie: {url}")
-            extract_category_books(url)
-            
-        elif command == "3":
-            print("Extraction de toutes les catégories")
-            extract_all_categories("http://books.toscrape.com/")
-            
-        else:
-            print("Commande invalide ou paramètres manquants")
-            
+        executer_commande(choix)
+
+    except KeyboardInterrupt:
+        print("\nOpération interrompue par l'utilisateur.")
+        sys.exit(1)
     except Exception as e:
         print(f"Erreur: {str(e)}")
         sys.exit(1)
-    
-    print("Opération terminée avec succès!")
+
+    print("\nOpération terminée avec succès!")
+
+
+def executer_commande(args):
+    if not args:
+        return
+
+    command = args[0].lower()
+
+    if command == "book" and len(args) >= 2:
+        url = args[1]
+        print(f"Extraction du livre: {url}")
+        book_data = extract_book_data(url)
+        if book_data:
+            save_to_csv(book_data)
+            print(f"Livre '{book_data['title']}' extrait avec succès!")
+        else:
+            print("Échec de l'extraction du livre.")
+
+    elif command == "category" and len(args) >= 2:
+        url = args[1]
+        print(f"Extraction de la catégorie: {url}")
+        extract_category_books(url)
+
+    elif command == "allcategories":
+        print("Extraction de toutes les catégories")
+        base_url = "http://books.toscrape.com/"
+        extract_all_categories(base_url)
+
+    elif command == "allimages":
+        print("Téléchargement de toutes les images de couverture")
+        extract_all_book_images()
+
+    else:
+        print(f"Commande '{command}' invalide ou paramètres manquants")
+        print("Utilisez une des commandes: book, category, allcategories, allimages")
+
+
+def demander_choix():
+    print("\nQue souhaitez-vous faire ? (entrez le numéro ou la commande)")
+    print("1 ou book      : Extraire un seul livre (vous devrez fournir l'URL)")
+    print("2 ou category  : Extraire tous les livres d'une catégorie (vous devrez fournir l'URL)")
+    print("3 ou allcategories : Extraire toutes les catégories")
+    print("4 ou allimages : Télécharger toutes les images de couverture")
+    print("q ou quitter   : Quitter le programme")
+
+    choix = input("\nVotre choix: ").strip().lower()
+
+    if choix in ('q', 'quitter', 'exit'):
+        return None
+
+    mapping = {
+        '1': 'book',
+        '2': 'category',
+        '3': 'allcategories',
+        '4': 'allimages'
+    }
+
+    if choix in mapping:
+        choix = mapping[choix]
+
+    if choix in ('book', 'category'):
+        url = input(f"Entrez l'URL pour la commande '{choix}': ").strip()
+        return [choix, url]
+    elif choix in ('allcategories', 'allimages'):
+        return [choix]
+    else:
+        print("Choix non reconnu.")
+        return demander_choix()  # Redemander
+
 
 if __name__ == "__main__":
     main()

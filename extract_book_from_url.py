@@ -1,3 +1,4 @@
+from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
 import csv
@@ -37,7 +38,7 @@ def extract_book_data(url):
     review_rating = rating_mapping.get(rating_class, 0)
     
     image_relative_url = soup.find('div', class_='item active').img['src']
-    image_url = 'http://books.toscrape.com/' + image_relative_url.replace('../', '')
+    image_url = urljoin(url, image_relative_url)
     
     book_data = {
         'product_page_url': url,
@@ -53,32 +54,3 @@ def extract_book_data(url):
     }
     
     return book_data
-
-def save_to_csv(book_data, filename='data/book.csv'):
-    """Sauvegarder les données d'un livre dans un fichier CSV"""
-    os.makedirs('data', exist_ok=True)
-    
-    file_exists = os.path.isfile(filename)
-    
-    fieldnames = [
-        'product_page_url',
-        'universal_product_code',
-        'title',
-        'price_including_tax',
-        'price_excluding_tax',
-        'number_available',
-        'product_description',
-        'category',
-        'review_rating',
-        'image_url'
-    ]
-    
-    with open(filename, 'a', newline='', encoding='utf-8') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        
-        if not file_exists:
-            writer.writeheader()
-        
-        writer.writerow(book_data)
-    
-    print(f"Données sauvegardées dans {filename}")
