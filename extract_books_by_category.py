@@ -26,8 +26,8 @@ def extract_category_books(category_url):
         for book in book_containers:
             relative_url = book.h3.a['href']
             book_path = relative_url.split('/')[-2:]
-            absolute_url = f"http://books.toscrape.com/catalogue/{'/'.join(book_path)}"
-            print(f"URL relative: {relative_url}, URL absolue: {absolute_url}")
+            # absolute_url = f"http://books.toscrape.com/catalogue/{'/'.join(book_path)}"
+            absolute_url = urljoin(current_url, relative_url)
             book_count += 1
 
             try:

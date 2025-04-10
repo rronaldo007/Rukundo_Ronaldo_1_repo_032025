@@ -35,7 +35,7 @@ def download_cover_image(image_url, title, category):
         print(f"Error downloading image {image_url}: {str(e)}")
         return None
 
-def extract_all_book_images():
+def download_all_book_images_by_category():
     """
     Extract and download images of all books from the website
     """

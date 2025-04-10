@@ -5,13 +5,12 @@ from extract_book_from_url import extract_book_data
 from extract_books_by_category import extract_category_books, save_to_csv
 from extract_all_cotegories_and_books import extract_all_categories
 from download_all_cover_image import extract_all_book_images, download_cover_image
+from download_image_and_category import download_all_book_images_by_category
+
 
 def main():
-
     os.makedirs('data', exist_ok=True)
     os.makedirs('images', exist_ok=True)
-
-    print(f"Début de l'extraction: {time.strftime('%H:%M:%S', time.localtime())}")
 
     if len(sys.argv) < 2:
         choix = demander_choix()
@@ -39,33 +38,53 @@ def executer_commande(args):
 
     command = args[0].lower()
 
-    if command == "book" and len(args) >= 2:
-        url = args[1]
-        print(f"Extraction du livre: {url}")
-        book_data = extract_book_data(url)
-        if book_data:
-            save_to_csv(book_data)
-            print(f"Livre '{book_data['title']}' extrait avec succès!")
-        else:
-            print("Échec de l'extraction du livre.")
+    match command:
+        case "book" if len(args) >= 2:
+            url = args[1]
+            print(f"Extraction du livre: {url}")
+            try:
+                book_data = extract_book_data(url)
+                if book_data:
+                    save_to_csv(book_data)
+                    print(f"Livre '{book_data['title']}' extrait avec succès!")
+                else:
+                    print("Échec de l'extraction du livre.")
+            except Exception as e:
+                print(f"Erreur lors de l'extraction du livre {url}: {str(e)}")
 
-    elif command == "category" and len(args) >= 2:
-        url = args[1]
-        print(f"Extraction de la catégorie: {url}")
-        extract_category_books(url)
+        case "category" if len(args) >= 2:
+            url = args[1]
+            print(f"Extraction de la catégorie: {url}")
+            try:
+                extract_category_books(url)
+            except Exception as e:
+                print(f"Erreur lors de l'extraction de la catégorie {url}: {str(e)}")
 
-    elif command == "allcategories":
-        print("Extraction de toutes les catégories")
-        base_url = "http://books.toscrape.com/"
-        extract_all_categories(base_url)
+        case "allcategories":
+            print("Extraction de toutes les catégories")
+            base_url = "http://books.toscrape.com/"
+            try:
+                extract_all_categories(base_url)
+            except Exception as e:
+                print(f"Erreur lors de l'extraction des catégories: {str(e)}")
 
-    elif command == "allimages":
-        print("Téléchargement de toutes les images de couverture")
-        extract_all_book_images()
+        case "allimages":
+            print("Téléchargement de toutes les images de couverture")
+            try:
+                extract_all_book_images()
+            except Exception as e:
+                print(f"Erreur lors du téléchargement des images: {str(e)}")
 
-    else:
-        print(f"Commande '{command}' invalide ou paramètres manquants")
-        print("Utilisez une des commandes: book, category, allcategories, allimages")
+        case "categoryimages":
+            print("Téléchargement des images de leur catégorie")
+            try:
+                download_all_book_images_by_category()
+            except Exception as e:
+                print(f"Erreur lors du téléchargement des images de la catégorie {url}: {str(e)}")
+
+        case _:
+            print(f"Commande '{command}' invalide ou paramètres manquants")
+            print("Utilisez une des commandes: book, category, allcategories, allimages, categoryimages")
 
 
 def demander_choix():
@@ -74,6 +93,7 @@ def demander_choix():
     print("2 ou category  : Extraire tous les livres d'une catégorie (vous devrez fournir l'URL)")
     print("3 ou allcategories : Extraire toutes les catégories")
     print("4 ou allimages : Télécharger toutes les images de couverture")
+    print("5 ou categoryimages : Télécharger les images d'une catégorie (vous devrez fournir l'URL)")
     print("q ou quitter   : Quitter le programme")
 
     choix = input("\nVotre choix: ").strip().lower()
@@ -85,20 +105,21 @@ def demander_choix():
         '1': 'book',
         '2': 'category',
         '3': 'allcategories',
-        '4': 'allimages'
+        '4': 'allimages',
+        '5': 'categoryimages'
     }
 
     if choix in mapping:
         choix = mapping[choix]
 
-    if choix in ('book', 'category'):
+    if choix in ('book', 'category', ):
         url = input(f"Entrez l'URL pour la commande '{choix}': ").strip()
         return [choix, url]
-    elif choix in ('allcategories', 'allimages'):
+    elif choix in ('allcategories', 'allimages', 'categoryimages'):
         return [choix]
     else:
         print("Choix non reconnu.")
-        return demander_choix()  # Redemander
+        return demander_choix()  # Redemander avec récursivité
 
 
 if __name__ == "__main__":
